@@ -7,11 +7,12 @@ const cron = require("node-cron");
 const Cart = require("../models/Cart");
 const Product = require("../models/Product");
 
+
 router.use(express.urlencoded({ extended: true }));
 
 router.get("/payment/:id", async (req, res) => {
-  //   const { cartId } = req.cookies.cartId;
-  //   console.log(cartId)
+//   const { cartId } = req.cookies.cartId;
+//   console.log(cartId)
 
   const order = await Order.findById(req.params.id);
 
@@ -132,6 +133,7 @@ async function updateProductStock(transactionId) {
   }
 }
 
+
 router.post("/status/:txnId/:cartId?", async (req, res) => {
   const merchantId = "M22HN3XFPQ7WE";
   const SALT_KEY = "ad08a894-d6e0-4fbb-a949-bdb5fe340a06";
@@ -151,6 +153,7 @@ router.post("/status/:txnId/:cartId?", async (req, res) => {
   };
   try {
     const response = await axios.request(options);
+
     if (response.data.code === "PAYMENT_SUCCESS") {
       const removeCart = await Cart.findOneAndDelete({
         cartId: req.cookies.cartId,
@@ -159,35 +162,32 @@ router.post("/status/:txnId/:cartId?", async (req, res) => {
         { transationId: response.data.data.merchantTransactionId },
         { $set: { status: "PAYMENT_SUCCESS" } }
       );
-      // if(order.isQuantityRemoved === false) {
-      //   console.log("false quantity removed")
       updateProductStock(req.params.txnId);
-      // }
-      res.status(200).json({ message: "Success" });
+      res.status(200).json({message: 'Success'});
     } else if (response.data.code === "PAYMENT_ERROR") {
       await Order.updateOne(
         { transationId: response.data.data.merchantTransactionId },
         { $set: { status: "PAYMENT_ERROR" } }
       );
-      res.status(200).json({ message: "Error" });
+      res.status(200).json({message: 'Error'});
     } else if (response.data.code === "PAYMENT_PENDING") {
       await Order.updateOne(
         { transationId: response.data.data.merchantTransactionId },
         { $set: { status: "PAYMENT_PENDING" } }
       );
-      res.status(200).json({ message: "Pending" });
+      res.status(200).json({message: 'Pending'});
     } else if (response.data.code === "INTERNAL_SERVER_ERROR") {
       await Order.updateOne(
         { transationId: response.data.data.merchantTransactionId },
         { $set: { status: "INTERNAL_SERVER_ERROR" } }
       );
-      res.status(200).json({ message: "Internal" });
+      res.status(200).json({message: 'Internal'});
     } else {
       await Order.updateOne(
         { transationId: response.data.data.merchantTransactionId },
         { $set: { status: "PAYMENT_ERROR" } }
       );
-      res.status(200).json({ message: "Error" });
+      res.status(200).json({message: 'Error'});
     }
   } catch (error) {
     console.error(error);

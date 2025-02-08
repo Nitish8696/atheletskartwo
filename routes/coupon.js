@@ -5,6 +5,7 @@ const router = require("express").Router();
 
 // Create a new coupon
 router.post('/create',async (req, res) => {
+    console.log("hello")
     const { couponTitle, percentage, minQuantity, expirationDate } = req.body;
   
     try {

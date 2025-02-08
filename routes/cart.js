@@ -14,7 +14,9 @@ const cartmiddleware = async (req, res, next) => {
   if (!req.cookies.cartId) {
     const cartId = uuid.v4();
     req.cartId = cartId;
-    res.cookie("cartId", req.cartId);
+    res.cookie("cartId", req.cartId,{
+      sameSite: "None",
+    });
     next();
   } else {
     req.cartId = req.cookies.cartId;
