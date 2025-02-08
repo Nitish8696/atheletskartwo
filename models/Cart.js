@@ -1,23 +1,15 @@
 const mongoose = require("mongoose");
-const { boolean } = require("webidl-conversions");
-
 
 const CartSchema = new mongoose.Schema(
-    {
-        userId: { type: String, required: true },
-        productId: [
-            {
-                productId: {
-                    type: String,
-                },
-                quantity: {
-                    type:Number,
-                    default : 1,
-                },
-            },
-        ]
-    },
-    { timestamps: true }
-)
+  {
+    cartId: { type: String, required: true, unique: true },
+    cart: { type: Array, required: true },
+    createdAt: { type: Date, default: Date.now },
+    expiresAt: { type: Date, required: true } // No need for `expires: 0` here
+  }
+);
 
-module.exports = mongoose.model("Cart", CartSchema)
+// Create TTL index on `expiresAt` field
+CartSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 2592000 }); // 0 means expire right after `expiresAt`
+
+module.exports = mongoose.model("Cart", CartSchema);
